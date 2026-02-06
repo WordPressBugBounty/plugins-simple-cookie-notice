@@ -1,10 +1,10 @@
 === Simple Cookie Notice ===
 Contributors: lovecoding
-Tags: cookie, cookie notice, cookie consent, cookie law, privacy policy, cookies, 
+Tags: cookie, cookie notice, cookie consent, cookie law, privacy policy, cookies, simple cookies
 Requires at least: 5.0
-Tested up to: 6.6
+Tested up to: 6.9
 Requires PHP: 7.0
-Stable tag: 2.0
+Stable tag: 2.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl.html
 
@@ -41,6 +41,14 @@ No questions yet.
 
 
 == Upgrade Notice ==
+
+= 2.1 =
+* Fixed critical bug with cookie name inconsistency
+* Improved uninstall process
+* Changed Privacy Policy button to link for better performance and SEO
+* Added validation for cookie expiration time
+* Fixed typos in variable names
+* Code refactoring and improvements
 
 = 2.0 =
 * Prevent page reloading after accepting cookies
