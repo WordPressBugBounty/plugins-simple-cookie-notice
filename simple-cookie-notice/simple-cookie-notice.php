@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Simple Cookie Notice
  * Description: In simple way add personalized cookie info and link to wordpress privacy policy page.
- * Version: 2.1
+ * Version: 2.2
  * Requires at least: 5.0
  * Requires PHP: 7.0
  * Author: JL-lovecoding
@@ -28,7 +28,7 @@
 defined( 'ABSPATH' ) or die( 'hey, you don\'t have an access to read this site' );
 
 // adding 'Settings' link to plugin links
-function jlplg_lovecoding_add_plugin_settings_link( $links ) {
+function jlplg_lovecoding_add_plugin_settings_link( array $links ) {
     $url = admin_url()."options-general.php?page=privacy-policy";
     $settings_link = '<a href="'.esc_url( $url ).'">'.esc_html( 'Settings' ).'</a>';
     $links[] = $settings_link;
@@ -73,12 +73,12 @@ function jlplg_lovecoding_display_cookie_info() {
     $text_color = get_option( "jlplg_lovecoding-field6-text-color", '#ffffff' );
     $button_background_color = get_option( "jlplg_lovecoding-field7-button-background-color", '#dcf1ff' );
     $button_text_color = get_option( "jlplg_lovecoding-field8-button-text-color", '#000000' );
-    $cookie_info_placemet = get_option( "jlplg_lovecoding-field4-cookie-plugin-placement", 'bottom' );
+    $cookie_info_placement = jlplg_lovecoding_sanitize_placement( get_option( "jlplg_lovecoding-field4-cookie-plugin-placement", 'bottom' ) );
     $cookie_expire_time = get_option( "jlplg_lovecoding-field9-cookie-expire-time", '30' );
     $allowed_html = jlplg_lovecoding_allowed_html();
 ?>
     <div class="jlplg-lovecoding-cookie-info-container jlplg-hidden" 
-        style="<?php echo '--jlplg-buton-bg-color: '.esc_attr( $button_background_color ).'; background-color: '.esc_attr( $background_color ).'; '.esc_attr( $cookie_info_placemet ).': 0' ?>" 
+        style="<?php echo '--jlplg-buton-bg-color: '.esc_attr( $button_background_color ).'; background-color: '.esc_attr( $background_color ).'; '.esc_attr( $cookie_info_placement ).': 0' ?>" 
         id="jlplg-lovecoding-cookie-info-container">
         <form method="post" id="cookie-form"> 
             <p class="jlplg-lovecoding-cookie-info" style="<?php echo 'color: '.esc_attr( $text_color ) ?>"><?php echo wp_kses( $cookie_message, $allowed_html ); ?></p>
@@ -142,7 +142,7 @@ function jlplg_lovecoding_add_new_settings() {
     );
     $configuration_settings_field4_arg = array(
         'type' => 'string',
-        'sanitize_callback' => 'jlplg_lovecoding_sanitize_input_field',
+        'sanitize_callback' => 'jlplg_lovecoding_sanitize_placement',
         'default' => 'bottom'
     );
     $configuration_settings_field5_arg = array(
@@ -221,7 +221,7 @@ function jlplg_lovecoding_field_3_callback() {
 
 // field 4 - cookie info placement
 function jlplg_lovecoding_field_4_callback() {
-    $isChecked = get_option( "jlplg_lovecoding-field4-cookie-plugin-placement", 'bottom' );
+    $isChecked = jlplg_lovecoding_sanitize_placement( get_option( "jlplg_lovecoding-field4-cookie-plugin-placement", 'bottom' ) );
     ?>
     <input type="radio" name="jlplg_lovecoding-field4-cookie-plugin-placement" value="top" <?php echo esc_html( $isChecked ) === 'top' ? "checked" : null ?> /> Top <br><br>
     <input type="radio" name="jlplg_lovecoding-field4-cookie-plugin-placement" value="bottom" <?php echo esc_html( $isChecked ) === 'bottom' ? "checked" : null ?> /> Bottom
@@ -254,7 +254,7 @@ function jlplg_lovecoding_field_9_callback() {
 }
 
 // sanitize textarea
-function jlplg_lovecoding_sanitize_textarea_field( $input ) {
+function jlplg_lovecoding_sanitize_textarea_field( string $input ) {
     if ( isset( $input ) ) {
         $allowed_html = jlplg_lovecoding_allowed_html();
         $input = wp_kses( $input, $allowed_html );
@@ -263,16 +263,22 @@ function jlplg_lovecoding_sanitize_textarea_field( $input ) {
 }
 
 // sanitize integer
-function jlplg_lovecoding_sanitize_integer( $input ) {
+function jlplg_lovecoding_sanitize_integer( int $input ) {
     return ( isset( $input ) ) ? absint( $input ) : 30;
 }
 
 // sanitize input
-function jlplg_lovecoding_sanitize_input_field( $input ) {
+function jlplg_lovecoding_sanitize_input_field( string $input ) {
     if ( isset( $input ) ) {
         $input = sanitize_text_field( $input );
     }
     return $input;
+}
+
+// sanitize placement
+function jlplg_lovecoding_sanitize_placement( string $input ) {
+    $placement = sanitize_key( (string) $input );
+    return in_array( $placement, array( 'top', 'bottom' ), true ) ? $placement : 'bottom';
 }
 
 // sanitize checkbox
@@ -281,7 +287,7 @@ function jlplg_lovecoding_sanitize_checkbox( $checked ) {
 }
 
 // sanitize color input
-function jlplg_lovecoding_sanitize_color_input( $input ) {
+function jlplg_lovecoding_sanitize_color_input( string $input ) {
     if ( isset( $input ) ) {
         $input = sanitize_hex_color( $input );
     }
@@ -316,6 +322,3 @@ function jlplg_lovecoding_page_html_content() {
     </div>
     <?php
 }
-
-
-
